@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Частицы.Emitter;
 
 namespace Частицы
 {
@@ -24,16 +25,25 @@ namespace Частицы
             picDisplay.Image = new Bitmap(picDisplay.Width, picDisplay.Height);
 
             // добавил точечку
-            emitter.gravityPoints.Add(new Point(
-                picDisplay.Width / 2, picDisplay.Height / 2
-            ));
-            emitter.gravityPoints.Add(new Point(
-                (int)(picDisplay.Width * 0.75), picDisplay.Height / 2
-            ));
+            emitter.impactPoints.Add(new GravityPoint
+            {
+                X = (float)(picDisplay.Width * 0.25),
+                Y = picDisplay.Height / 2
+            });
 
-            emitter.gravityPoints.Add(new Point(
-               (int)(picDisplay.Width * 0.25), picDisplay.Height / 2
-           ));
+            // в центре антигравитон
+            emitter.impactPoints.Add(new AntiGravityPoint
+            {
+                X = picDisplay.Width / 2,
+                Y = picDisplay.Height / 2
+            });
+
+            // снова гравитон
+            emitter.impactPoints.Add(new GravityPoint
+            {
+                X = (float)(picDisplay.Width * 0.75),
+                Y = picDisplay.Height / 2
+            });
         }
 
         private void picDisplay_Click(object sender, EventArgs e)

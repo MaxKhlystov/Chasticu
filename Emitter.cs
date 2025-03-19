@@ -4,12 +4,13 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Частицы.Emitter;
 
 namespace Частицы
 {
     public class Emitter
     {
-        public List<Point> gravityPoints = new List<Point>();
+        public List<IImpactPoint> impactPoints = new List<IImpactPoint>();
         List<Particle> particles = new List<Particle>();
         public int MousePositionX;
         public int MousePositionY;
@@ -37,35 +38,24 @@ namespace Частицы
                 }
                 else
                 {
-                    foreach (var point in gravityPoints)
+                    foreach (var point in impactPoints)
                     {
-                        float gX = point.X - particle.X;
-                        float gY = point.Y - particle.Y;
-                        float r2 = (float)Math.Max(100, gX * gX + gY * gY);
-                        float M = 100;
-
-                        particle.SpeedX += (gX) * M / r2;
-                        particle.SpeedY += (gY) * M / r2;
+                        point.ImpactParticle(particle);
                     }
-                    particle.SpeedX += GravitationX;
-                    particle.SpeedY += GravitationY;
-
-                    particle.X += particle.SpeedX;
-                    particle.Y += particle.SpeedY;
                 }
-            }
-            for (var i = 0; i < 10; ++i)
-            {
-                if (particles.Count < 500)
+                for (var i = 0; i < 10; ++i)
                 {
-                    var particle = new ParticleColorful();
-                    particle.FromColor = Color.Yellow;
-                    particle.ToColor = Color.FromArgb(0, Color.Magenta);
-                    particle.X = MousePositionX;
-                    particle.Y = MousePositionY;
-                    particles.Add(particle);
+                    if (particles.Count < 500)
+                    {
+                        var particle1 = new ParticleColorful();
+                        particle1.FromColor = Color.Yellow;
+                        particle1.ToColor = Color.FromArgb(0, Color.Magenta);
+                        particle1.X = MousePositionX;
+                        particle1.Y = MousePositionY;
+                        particles.Add(particle1);
+                    }
+                    else break;
                 }
-                else break;
             }
         }
 
@@ -75,15 +65,60 @@ namespace Частицы
             {
                 particle.Draw(g);
             }
-            foreach (var point in gravityPoints)
+            foreach (var point in impactPoints)
+            {
+                point.Render(g);
+            }
+        }
+        public abstract class IImpactPoint
+        {
+            public float X;
+            public float Y;
+
+            // абстрактный метод с помощью которого будем изменять состояние частиц
+            // например притягивать
+            public abstract void ImpactParticle(Particle particle);
+
+            // базовый класс для отрисовки точечки
+            public void Render(Graphics g)
             {
                 g.FillEllipse(
-                    new SolidBrush(Color.Red),
-                    point.X - 5,
-                    point.Y - 5,
-                    10,
-                    10
-                );
+                        new SolidBrush(Color.Red),
+                        X - 5,
+                        Y - 5,
+                        10,
+                        10
+                    );
+            }
+        }
+        public class GravityPoint : IImpactPoint
+        {
+            public int Power = 100; // сила притяжения
+
+            // а сюда по сути скопировали с минимальными правками то что было в UpdateState
+            public override void ImpactParticle(Particle particle)
+            {
+                float gX = X - particle.X;
+                float gY = Y - particle.Y;
+                float r2 = (float)Math.Max(100, gX * gX + gY * gY);
+
+                particle.SpeedX += gX * Power / r2;
+                particle.SpeedY += gY * Power / r2;
+            }
+        }
+        public class AntiGravityPoint : IImpactPoint
+        {
+            public int Power = 100; // сила отторжения
+
+            // а сюда по сути скопировали с минимальными правками то что было в UpdateState
+            public override void ImpactParticle(Particle particle)
+            {
+                float gX = X - particle.X;
+                float gY = Y - particle.Y;
+                float r2 = (float)Math.Max(100, gX * gX + gY * gY);
+
+                particle.SpeedX -= gX * Power / r2; // тут минусики вместо плюсов
+                particle.SpeedY -= gY * Power / r2; // и тут
             }
         }
     }
