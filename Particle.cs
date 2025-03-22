@@ -21,13 +21,12 @@ namespace Частицы
 
         public Particle()
         {
-
-            var direction = rand.Next(360);
-            var speed = 1 + rand.Next(10);
-            SpeedX = (float)(Math.Cos(direction / 180 * Math.PI) * speed);
-            SpeedY = -(float)(Math.Sin(direction / 180 * Math.PI) * speed);
-            Radius = 2 + rand.Next(10);
-            Life = 20 + rand.Next(100);
+            var direction = rand.Next(360); 
+            var speed = 1 + rand.Next(10); 
+            SpeedX = (float)(Math.Cos(direction / 180 * Math.PI) * speed); 
+            SpeedY = -(float)(Math.Sin(direction / 180 * Math.PI) * speed); 
+            Radius = 2 + rand.Next(10); 
+            Life = 20 + rand.Next(100); 
         }
         public virtual void Draw(Graphics g)
         {
@@ -50,10 +49,10 @@ namespace Частицы
         public static Color MixColor(Color color1, Color color2, float k)
         {
             return Color.FromArgb(
-                (int)(color2.A * k + color1.A * (1 - k)),
-                (int)(color2.R * k + color1.R * (1 - k)),
-                (int)(color2.G * k + color1.G * (1 - k)),
-                (int)(color2.B * k + color1.B * (1 - k))
+                Math.Min(255, (int)(color2.A * k + color1.A * (1 - k))),
+                Math.Min(255, (int)(color2.R * k + color1.R * (1 - k))),
+                Math.Min(255, (int)(color2.G * k + color1.G * (1 - k))),
+                Math.Min(255, (int)(color2.B * k + color1.B * (1 - k)))
             );
         }
 
@@ -70,5 +69,6 @@ namespace Частицы
 
             b.Dispose();
         }
+
     }
 }

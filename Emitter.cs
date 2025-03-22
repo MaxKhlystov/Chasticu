@@ -24,38 +24,37 @@ namespace Частицы
                 particle.Life -= 1;
                 if (particle.Life < 0)
                 {
-                    particle.Life = 20 + Particle.rand.Next(100);
-                    particle.X = MousePositionX;
-                    particle.Y = MousePositionY;
-
-                    /* тут сброс состояния частицы */
-                    var direction = (double)Particle.rand.Next(360);
-                    var speed = 1 + Particle.rand.Next(10);
-
-                    particle.SpeedX = (float)(Math.Cos(direction / 180 * Math.PI) * speed);
-                    particle.SpeedY = -(float)(Math.Sin(direction / 180 * Math.PI) * speed);
-                    particle.Radius = 2 + Particle.rand.Next(10);
+                    ResetParticle(particle);
                 }
                 else
                 {
+                    // обновление координат частицы
+                    particle.X += particle.SpeedX;
+                    particle.Y += particle.SpeedY;
+
+                    // применение гравитации
+                    particle.SpeedX += GravitationX;
+                    particle.SpeedY += GravitationY;
+
+                    // воздействие точек
                     foreach (var point in impactPoints)
                     {
                         point.ImpactParticle(particle);
                     }
                 }
-                for (var i = 0; i < 10; ++i)
+            }
+
+            for (var i = 0; i < 10; ++i)
+            {
+                if (particles.Count < ParticlesCount)
                 {
-                    if (particles.Count < 500)
-                    {
-                        var particle1 = new ParticleColorful();
-                        particle1.FromColor = Color.Yellow;
-                        particle1.ToColor = Color.FromArgb(0, Color.Magenta);
-                        particle1.X = MousePositionX;
-                        particle1.Y = MousePositionY;
-                        particles.Add(particle1);
-                    }
-                    else break;
+                    var particle = new ParticleColorful();
+                    particle.FromColor = Color.White;
+                    particle.ToColor = Color.FromArgb(0, Color.Black);
+                    ResetParticle(particle); 
+                    particles.Add(particle);
                 }
+                else break;
             }
         }
 
@@ -100,7 +99,7 @@ namespace Частицы
             {
                 float gX = X - particle.X;
                 float gY = Y - particle.Y;
-                float r2 = (float)Math.Max(100, gX * gX + gY * gY);
+                float r2 = (float)Math.Max(1, gX * gX + gY * gY);
 
                 particle.SpeedX += gX * Power / r2;
                 particle.SpeedY += gY * Power / r2;
@@ -115,11 +114,42 @@ namespace Частицы
             {
                 float gX = X - particle.X;
                 float gY = Y - particle.Y;
-                float r2 = (float)Math.Max(100, gX * gX + gY * gY);
+                float r2 = (float)Math.Max(1, gX * gX + gY * gY);
 
-                particle.SpeedX -= gX * Power / r2; // тут минусики вместо плюсов
-                particle.SpeedY -= gY * Power / r2; // и тут
+                particle.SpeedX -= gX * Power / r2;
+                particle.SpeedY -= gY * Power / r2;
             }
+        }
+        public int ParticlesCount = 500;
+        public virtual void ResetParticle(Particle particle)
+        {
+            particle.Life = 20 + Particle.rand.Next(100);
+            particle.X = MousePositionX;
+            particle.Y = MousePositionY;
+
+            var direction = (double)Particle.rand.Next(360);
+            var speed = 1 + Particle.rand.Next(10);
+
+            particle.SpeedX = (float)(Math.Cos(direction / 180 * Math.PI) * speed);
+            particle.SpeedY = -(float)(Math.Sin(direction / 180 * Math.PI) * speed);
+
+            particle.Radius = 2 + Particle.rand.Next(10);
+        }
+    }
+    public class TopEmitter : Emitter
+    {
+        public int Width; // длина экрана
+
+        public override void ResetParticle(Particle particle)
+        {
+            base.ResetParticle(particle); // вызываем базовый сброс частицы, там жизнь переопределяется и все такое
+
+            // а теперь тут уже подкручиваем параметры движения
+            particle.X = Particle.rand.Next(Width); // позиция X -- произвольная точка от 0 до Width
+            particle.Y = 0;  // ноль -- это верх экрана 
+
+            particle.SpeedY = 1; // падаем вниз по умолчанию
+            particle.SpeedX = Particle.rand.Next(-2, 2); // разброс влево и вправа у частиц 
         }
     }
 }

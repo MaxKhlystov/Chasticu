@@ -24,7 +24,15 @@ namespace Частицы
             InitializeComponent();
             picDisplay.Image = new Bitmap(picDisplay.Width, picDisplay.Height);
 
-            // добавил точечку
+            // а тут теперь вручную создаем
+            emitter = new TopEmitter
+            {
+                Width = picDisplay.Width,
+                GravitationY = 0.25f
+            };
+            
+
+            // гравитон
             emitter.impactPoints.Add(new GravityPoint
             {
                 X = (float)(picDisplay.Width * 0.25),
@@ -44,6 +52,7 @@ namespace Частицы
                 X = (float)(picDisplay.Width * 0.75),
                 Y = picDisplay.Height / 2
             });
+            
         }
 
         private void picDisplay_Click(object sender, EventArgs e)
