@@ -13,46 +13,43 @@ namespace Частицы
 {
     public partial class Form1 : Form
     {
-
-        List<Particle> particles = new List<Particle>();
-        private int MousePositionX = 0;
-        private int MousePositionY = 0;
-        private Emitter emitter = new Emitter();
+        List<Emitter> emitters = new List<Emitter>();
+        Emitter emitter;
+        GravityPoint point1; // добавил поле под первую точку
+        GravityPoint point2;
 
         public Form1()
         {
             InitializeComponent();
             picDisplay.Image = new Bitmap(picDisplay.Width, picDisplay.Height);
 
-            // а тут теперь вручную создаем
-            emitter = new TopEmitter
+            this.emitter = new Emitter // создаю эмиттер и привязываю его к полю emitter
             {
-                Width = picDisplay.Width,
-                GravitationY = 0.25f
-            };
-            
-
-            // гравитон
-            emitter.impactPoints.Add(new GravityPoint
-            {
-                X = (float)(picDisplay.Width * 0.25),
-                Y = picDisplay.Height / 2
-            });
-
-            // в центре антигравитон
-            emitter.impactPoints.Add(new AntiGravityPoint
-            {
+                Direction = 0,
+                Spreading = 10,
+                SpeedMin = 10,
+                SpeedMax = 10,
+                ColorFrom = Color.Gold,
+                ColorTo = Color.FromArgb(0, Color.Red),
+                ParticlesPerTick = 10,
                 X = picDisplay.Width / 2,
-                Y = picDisplay.Height / 2
-            });
-
-            // снова гравитон
-            emitter.impactPoints.Add(new GravityPoint
+                Y = picDisplay.Height / 2,
+            };
+            point1 = new GravityPoint
             {
-                X = (float)(picDisplay.Width * 0.75),
-                Y = picDisplay.Height / 2
-            });
-            
+                X = picDisplay.Width / 2 + 100,
+                Y = picDisplay.Height / 2,
+            };
+            point2 = new GravityPoint
+            {
+                X = picDisplay.Width / 2 - 100,
+                Y = picDisplay.Height / 2,
+            };
+
+            // привязываем поля к эмиттеру
+            emitter.impactPoints.Add(point1);
+            emitter.impactPoints.Add(point2);
+            emitters.Add(this.emitter);
         }
 
         private void picDisplay_Click(object sender, EventArgs e)
@@ -73,13 +70,51 @@ namespace Частицы
 
         private void picDisplay_MouseMove(object sender, MouseEventArgs e)
         {
-            emitter.MousePositionX = e.X;
-            emitter.MousePositionY = e.Y;
+            foreach (var emitter in emitters)
+            {
+                emitter.MousePositionX = e.X;
+                emitter.MousePositionY = e.Y;
+            }
+
+            point2.X = e.X;
+            point2.Y = e.Y;
         }
 
         private void picDisplay_MouseClick(object sender, MouseEventArgs e)
         {
            
+        }
+
+        private void tbDirection_Scroll(object sender, EventArgs e)
+        {
+            emitter.Direction = tbDirection.Value;
+            lblDirection.Text = $"{tbDirection.Value}°";
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tbDirection1_Scroll(object sender, EventArgs e)
+        {
+            emitter.Spreading = tbDirection1.Value;
+            lblDirection1.Text = $"{tbDirection1.Value}°";
+        }
+
+        private void tbGravition_Scroll(object sender, EventArgs e)
+        {
+            point1.Power = tbGravition.Value;
+        }
+
+        private void tbGravition2_Scroll(object sender, EventArgs e)
+        {
+            point2.Power = tbGravition2.Value;
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
