@@ -13,16 +13,14 @@ namespace Частицы
 {
     public partial class Form1 : Form
     {
+        List<Rectangle> rectangles = new List<Rectangle>();
         List<Emitter> emitters = new List<Emitter>();
         Emitter emitter;
-        GravityPoint point1; // добавил поле под первую точку
-        GravityPoint point2;
 
         public Form1()
         {
             InitializeComponent();
             picDisplay.Image = new Bitmap(picDisplay.Width, picDisplay.Height);
-
             this.emitter = new Emitter // создаю эмиттер и привязываю его к полю emitter
             {
                 Direction = 0,
@@ -35,20 +33,25 @@ namespace Частицы
                 X = picDisplay.Width / 2,
                 Y = picDisplay.Height / 2,
             };
-            point1 = new GravityPoint
+            rectangles.Add(new Rectangle
             {
-                X = picDisplay.Width / 2 + 100,
-                Y = picDisplay.Height / 2,
-            };
-            point2 = new GravityPoint
-            {
-                X = picDisplay.Width / 2 - 100,
-                Y = picDisplay.Height / 2,
-            };
+                X = 100,
+                Y = 100,
+                Width = 200,
+                Height = 50,
+                Color = Color.Red
+            });
 
-            // привязываем поля к эмиттеру
-            emitter.impactPoints.Add(point1);
-            emitter.impactPoints.Add(point2);
+            rectangles.Add(new Rectangle
+            {
+                X = 300,
+                Y = 300,
+                Width = 150,
+                Height = 100,
+                Color = Color.Blue
+            });
+
+            emitter.Rectangles.AddRange(rectangles);
             emitters.Add(this.emitter);
         }
 
@@ -63,6 +66,10 @@ namespace Частицы
             using (var g = Graphics.FromImage(picDisplay.Image))
             {
                 g.Clear(Color.Black);
+                foreach (var rect in rectangles)
+                {
+                    rect.Draw(g);
+                }
                 emitter.Render(g);
             }
             picDisplay.Invalidate();
@@ -70,19 +77,15 @@ namespace Частицы
 
         private void picDisplay_MouseMove(object sender, MouseEventArgs e)
         {
-            foreach (var emitter in emitters)
-            {
-                emitter.MousePositionX = e.X;
-                emitter.MousePositionY = e.Y;
-            }
-
-            point2.X = e.X;
-            point2.Y = e.Y;
+            emitter.TargetX = e.X;
+            emitter.TargetY = e.Y;
         }
 
         private void picDisplay_MouseClick(object sender, MouseEventArgs e)
         {
-           
+            emitter.EmitParticles(1);
+            emitter.TargetX = e.X;
+            emitter.TargetY = e.Y;
         }
 
         private void tbDirection_Scroll(object sender, EventArgs e)
@@ -100,16 +103,6 @@ namespace Частицы
         {
             emitter.Spreading = tbDirection1.Value;
             lblDirection1.Text = $"{tbDirection1.Value}°";
-        }
-
-        private void tbGravition_Scroll(object sender, EventArgs e)
-        {
-            point1.Power = tbGravition.Value;
-        }
-
-        private void tbGravition2_Scroll(object sender, EventArgs e)
-        {
-            point2.Power = tbGravition2.Value;
         }
 
         private void label4_Click(object sender, EventArgs e)
