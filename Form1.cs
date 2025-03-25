@@ -15,12 +15,16 @@ namespace Частицы
     {
         List<Rectangle> rectangles = new List<Rectangle>();
         List<Emitter> emitters = new List<Emitter>();
+        Rectangle rectangle1;
+        Rectangle rectangle2;
         Emitter emitter;
 
         public Form1()
         {
             InitializeComponent();
             picDisplay.Image = new Bitmap(picDisplay.Width, picDisplay.Height);
+            rectangle1 = new Rectangle(picDisplay.Width / 2, picDisplay.Height / 4, 0);
+            rectangle2 = new Rectangle(picDisplay.Width / 4, picDisplay.Height / 2, 0);
             this.emitter = new Emitter // создаю эмиттер и привязываю его к полю emitter
             {
                 Direction = 0,
@@ -33,24 +37,8 @@ namespace Частицы
                 X = picDisplay.Width / 2,
                 Y = picDisplay.Height / 2,
             };
-            rectangles.Add(new Rectangle
-            {
-                X = 100,
-                Y = 100,
-                Width = 200,
-                Height = 50,
-                Color = Color.Red
-            });
-
-            rectangles.Add(new Rectangle
-            {
-                X = 300,
-                Y = 300,
-                Width = 150,
-                Height = 100,
-                Color = Color.Blue
-            });
-
+            rectangles.Add(rectangle1);
+            rectangles.Add(rectangle2);
             emitter.Rectangles.AddRange(rectangles);
             emitters.Add(this.emitter);
         }

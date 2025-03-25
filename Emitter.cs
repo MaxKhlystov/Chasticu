@@ -8,7 +8,7 @@ using static Частицы.Emitter;
 
 namespace Частицы
 {
-    public class Emitter
+    class Emitter 
     {
         public List<IImpactPoint> impactPoints = new List<IImpactPoint>();
         List<Particle> particles = new List<Particle>();
@@ -139,7 +139,7 @@ namespace Частицы
 
 
     }
-    public class TopEmitter : Emitter
+    class TopEmitter : Emitter
     {
         public int Width; // длина экрана
 

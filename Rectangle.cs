@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Частицы
 {
-    public class Rectangle
+    class Rectangle : BaseObject
     {
         public float X;
         public float Y;
@@ -15,13 +16,13 @@ namespace Частицы
         public float Height;
         public Color Color;
 
-
-        public bool Contains(Particle particle)
+        public Rectangle(float x, float y, float angle) : base(x, y, angle)
         {
-            return particle.X >= X &&
-                   particle.X <= X + Width &&
-                   particle.Y >= Y &&
-                   particle.Y <= Y + Height;
+        }
+
+        public override void Render(Graphics g)
+        {
+            g.FillRectangle(new SolidBrush(Color.Red), 10, 10, 50, 30);
         }
 
         public void Draw(Graphics g)
@@ -30,6 +31,12 @@ namespace Частицы
             {
                 g.FillRectangle(brush, X, Y, Width, Height);
             }
+        }
+        public override GraphicsPath GetGraphicsPath()
+        {
+            var path = base.GetGraphicsPath();
+            path.AddEllipse(-15, -15, 30, 30);
+            return path;
         }
     }
 }
