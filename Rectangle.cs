@@ -10,8 +10,8 @@ namespace Частицы
 {
     class Rectangle : BaseObject
     {
-        public float X;
-        public float Y;
+        public new float X;
+        public new float Y;
         public float Width;
         public float Height;
         public Color Color;
@@ -20,19 +20,15 @@ namespace Частицы
         public Rectangle(float x, float y, float angle) : base(x, y, angle)
         {
             Width = 100;
-            Height = 10;
+            Height = 500;
+            Color = Color.Red;
         }
 
         public override void Render(Graphics g)
         {
-            g.FillRectangle(new SolidBrush(Color.Red), -Width/2, -Height/2, Width, Height);
-        }
-
-        public void Draw(Graphics g)
-        {
-            using (var brush = new SolidBrush(Color))
+            using (var brush = new SolidBrush(this.Color))
             {
-                g.FillRectangle(brush, X, Y, Width, Height);
+                g.FillRectangle(brush,- Width / 2,- Height / 2, Width, Height);
             }
         }
         public override GraphicsPath GetGraphicsPath()

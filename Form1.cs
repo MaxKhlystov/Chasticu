@@ -23,8 +23,8 @@ namespace Частицы
         {
             InitializeComponent();
             picDisplay.Image = new Bitmap(picDisplay.Width, picDisplay.Height);
-            rectangle1 = new Rectangle(picDisplay.Width / 2, picDisplay.Height / 4, 0);
-            rectangle2 = new Rectangle(picDisplay.Width / 4, picDisplay.Height / 2, 0);
+            rectangle1 = new Rectangle(picDisplay.Width / 2, picDisplay.Height / 3, 0);
+            rectangle2 = new Rectangle(picDisplay.Width / 3, picDisplay.Height / 2, 0);
             this.emitter = new Emitter // создаю эмиттер и привязываю его к полю emitter
             {
                 Direction = 0,
@@ -65,7 +65,7 @@ namespace Частицы
                 g.Clear(Color.Black);
                 foreach (var rect in rectangles)
                 {
-                    rect.Draw(g);
+                    rect.Render(g);
                 }
                 emitter.Render(g);
             }

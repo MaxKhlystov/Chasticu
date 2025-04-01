@@ -72,7 +72,7 @@ namespace Частицы
         {
             foreach (var rect in Rectangles)
             {
-                rect.Draw(g);
+                rect.Render(g);
             }
 
             foreach (var particle in particles)

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Частицы
 {
-    class Tank : BaseObject, IIntersection 
+    class Tank : BaseObject 
     {
         public Action<Rectangle> OnRectangleOverlap;
         public Action<Particle> OnParticleOverlap;
