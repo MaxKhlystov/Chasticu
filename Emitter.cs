@@ -37,31 +37,31 @@ namespace Частицы
             return new ParticleColorful();
         }
         public void UpdateState()
-        {
-            int particlesToCreate = ParticlesPerTick;
+         {
+             int particlesToCreate = ParticlesPerTick;
 
-            foreach (var particle in particles.ToList())
-            {
-                foreach (var rect in Rectangles)
-                {
-                    if (rect.Contains(particle))
-                    {
-                        particle.Life = 0;
-                        break;
-                    }
-                }
-                if (particle.Life <= 0)
-                {
-                    particles.Remove(particle);
-                }
-                else
-                {
-                    particle.X += particle.SpeedX;
-                    particle.Y += particle.SpeedY;
-                    particle.Life -= 1;
-                }
-            }
-        }
+             foreach (var particle in particles.ToList())
+             {
+                 foreach (var rect in Rectangles)
+                 {
+                     if (rect.Contains(particle))
+                     {
+                         particle.Life = 0;
+                         break;
+                     }
+                 }
+                 if (particle.Life <= 0)
+                 {
+                     particles.Remove(particle);
+                 }
+                 else
+                 {
+                     particle.X += particle.SpeedX;
+                     particle.Y += particle.SpeedY;
+                     particle.Life -= 1;
+                 }
+             }
+         }
 
         public void Render(Graphics g)
         {

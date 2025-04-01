@@ -18,11 +18,13 @@ namespace Частицы
 
         public Rectangle(float x, float y, float angle) : base(x, y, angle)
         {
+            Width = 100;
+            Height = 10;
         }
 
         public override void Render(Graphics g)
         {
-            g.FillRectangle(new SolidBrush(Color.Red), 10, 10, 50, 30);
+            g.FillRectangle(new SolidBrush(Color.Red), -Width/2, -Height/2, Width, Height);
         }
 
         public void Draw(Graphics g)
@@ -34,8 +36,8 @@ namespace Частицы
         }
         public override GraphicsPath GetGraphicsPath()
         {
-            var path = base.GetGraphicsPath();
-            path.AddEllipse(-15, -15, 30, 30);
+            var path = new GraphicsPath();
+            path.AddRectangle(new System.Drawing.RectangleF(-Width / 2, -Height / 2, Width, Height));
             return path;
         }
     }

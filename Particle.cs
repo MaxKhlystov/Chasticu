@@ -18,8 +18,6 @@ namespace Частицы
         public float SpeedY;
 
         public static Random rand = new Random();
-        //public Action<Rectangle> OnRectangleOverlap;
-
         public Particle()
         {
             var direction = rand.Next(360); 
