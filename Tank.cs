@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Частицы
 {
-    class Tank : BaseObject
+    class Tank : BaseObject, IIntersection 
     {
         public Action<Rectangle> OnRectangleOverlap;
         public Action<Particle> OnParticleOverlap;
@@ -46,9 +46,9 @@ namespace Частицы
         public override void Overlap(BaseObject obj)
         {
             base.Overlap(obj);
-            if (obj is Particle)
+            if (obj is Particle particle)
             {
-                OnParticleOverlap((Particle)obj);
+                OnParticleOverlap?.Invoke(particle);
             }
         }
     }

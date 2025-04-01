@@ -37,6 +37,15 @@ namespace Частицы
                 X = picDisplay.Width / 2,
                 Y = picDisplay.Height / 2,
             };
+
+            rectangle1.OnParticleOverlap += (m) =>
+            {
+
+            };
+            rectangle2.OnParticleOverlap += (m) =>
+            {
+
+            };
             rectangles.Add(rectangle1);
             rectangles.Add(rectangle2);
             emitter.Rectangles.AddRange(rectangles);

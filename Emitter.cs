@@ -34,7 +34,12 @@ namespace Частицы
 
         public virtual Particle CreateParticle()
         {
-            return new ParticleColorful();
+            var particle = new Particle(X, Y, 0)
+            {
+                ColorFrom = this.ColorFrom,
+                ColorTo = this.ColorTo
+            };
+            return particle;
         }
         public void UpdateState()
          {
@@ -42,14 +47,14 @@ namespace Частицы
 
              foreach (var particle in particles.ToList())
              {
-                 foreach (var rect in Rectangles)
+                 /*foreach (var rect in Rectangles)
                  {
-                     if (rect.Contains(particle))
+                     if (rect.Overlap(particle))
                      {
                          particle.Life = 0;
                          break;
                      }
-                 }
+                 }*/
                  if (particle.Life <= 0)
                  {
                      particles.Remove(particle);
@@ -108,7 +113,7 @@ namespace Частицы
         public int ParticlesCount = 500;
         public virtual void ResetParticle(Particle particle)
         {
-            particle.Life = Particle.rand.Next(LifeMin, LifeMax);
+            particle.Life = 70;
             particle.X = X;
             particle.Y = Y;
 
@@ -129,7 +134,7 @@ namespace Частицы
             dx += spreadFactor;
             dy += spreadFactor;
 
-            // Устанавливаем скорость частицы
+            // Устанавливаем скорость частицыф
             var speed = Particle.rand.Next(SpeedMin, SpeedMax);
             particle.SpeedX = dx * speed;
             particle.SpeedY = dy * speed;

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Частицы
 {
-    internal class BaseObject
+    public class BaseObject
     {
         public float X;
         public float Y;

@@ -15,6 +15,7 @@ namespace Частицы
         public float Width;
         public float Height;
         public Color Color;
+        public Action<Particle> OnParticleOverlap;
 
         public Rectangle(float x, float y, float angle) : base(x, y, angle)
         {
@@ -37,8 +38,17 @@ namespace Частицы
         public override GraphicsPath GetGraphicsPath()
         {
             var path = new GraphicsPath();
-            path.AddRectangle(new System.Drawing.RectangleF(-Width / 2, -Height / 2, Width, Height));
+            path.AddRectangle(new RectangleF(-Width / 2, -Height / 2, Width, Height));
             return path;
         }
+        public override void Overlap(BaseObject obj)
+        {
+            base.Overlap(obj);
+            if (obj is Particle particle)
+            {
+                OnParticleOverlap?.Invoke(particle);
+            }
+        }
+
     }
 }
