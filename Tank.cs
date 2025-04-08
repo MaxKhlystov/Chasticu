@@ -43,13 +43,5 @@ namespace Частицы
             path.AddEllipse(-25, -25, 50, 50);
             return path;
         }
-        public override void Overlap(BaseObject obj)
-        {
-            base.Overlap(obj);
-            if (obj is Particle particle)
-            {
-                OnParticleOverlap?.Invoke(particle);
-            }
-        }
     }
 }

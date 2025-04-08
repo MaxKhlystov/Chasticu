@@ -10,17 +10,17 @@ namespace Частицы
 {
     class Rectangle : BaseObject
     {
-        public new float X;
-        public new float Y;
+
         public float Width;
         public float Height;
         public Color Color;
-        public Action<Particle> OnParticleOverlap;
+
+        Random rand = new Random();
 
         public Rectangle(float x, float y, float angle) : base(x, y, angle)
         {
-            Width = 100;
-            Height = 500;
+            Width = rand.Next(50, 101);
+            Height = rand.Next(30, 101);
             Color = Color.Red;
         }
 
@@ -28,7 +28,8 @@ namespace Частицы
         {
             using (var brush = new SolidBrush(this.Color))
             {
-                g.FillRectangle(brush,- Width / 2,- Height / 2, Width, Height);
+                // Правильные параметры: x, y, width, height
+                g.FillRectangle(brush, X - Width / 2, Y - Height / 2, Width, Height);
             }
         }
         public override GraphicsPath GetGraphicsPath()
@@ -37,14 +38,5 @@ namespace Частицы
             path.AddRectangle(new RectangleF(-Width / 2, -Height / 2, Width, Height));
             return path;
         }
-        public override void Overlap(BaseObject obj)
-        {
-            base.Overlap(obj);
-            if (obj is Particle particle)
-            {
-                OnParticleOverlap?.Invoke(particle);
-            }
-        }
-
     }
 }

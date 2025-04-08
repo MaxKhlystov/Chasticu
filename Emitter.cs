@@ -11,7 +11,7 @@ namespace Частицы
     class Emitter 
     {
         public List<IImpactPoint> impactPoints = new List<IImpactPoint>();
-        List<Particle> particles = new List<Particle>();
+        public List<Particle> particles = new List<Particle>();
         public List<Rectangle> Rectangles = new List<Rectangle>();
         public int MousePositionX;
         public int MousePositionY;
@@ -42,14 +42,6 @@ namespace Частицы
 
             foreach (var particle in particles.ToList())
             {
-                /*foreach (var rect in Rectangles)
-                {
-                    if (rect.Overlap(particle))
-                    {
-                        particle.Life = 0;
-                        break;
-                    }
-                }*/
                 if (particle.Life <= 0)
                 {
                     particles.Remove(particle);
@@ -58,6 +50,15 @@ namespace Частицы
                 {
                     particle.X += particle.SpeedX;
                     particle.Y += particle.SpeedY;
+
+                    foreach (var rect in Rectangles)
+                    {
+                        if (particle.Overlaps(rect, null)) // null, т.к. Graphics не нужен для Region.IsEmpty
+                        {
+                            particle.OnRectangleOverlap?.Invoke(particle);
+                            break; // Прерываем, если столкнулись хотя бы с одним прямоугольником
+                        }
+                    }
                 }
             }
         }

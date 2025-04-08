@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace Частицы
 {
@@ -9,10 +10,10 @@ namespace Частицы
         public int Radius;
         public float X;
         public float Y;
-
         public float SpeedX;
         public float SpeedY;
-        public Color ColorParticle = Color.White; 
+        public Color ColorParticle = Color.White;
+        public Action<Particle> OnRectangleOverlap;
 
         public static Random rand = new Random();
         
@@ -34,6 +35,20 @@ namespace Частицы
             {
                 g.FillEllipse(b, X - Radius, Y - Radius, Radius * 2, Radius * 2);
             }
+        }
+        public override void Overlap(BaseObject obj)
+        {
+            base.Overlap(obj);
+            if (obj is Rectangle)
+            {
+                OnRectangleOverlap?.Invoke(this);
+            }
+        }
+        public override GraphicsPath GetGraphicsPath()
+        {
+            var path = new GraphicsPath();
+            path.AddEllipse(-Radius, -Radius, Radius * 2, Radius * 2);
+            return path;
         }
     }
 }

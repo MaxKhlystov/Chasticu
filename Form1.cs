@@ -35,14 +35,25 @@ namespace Частицы
                 X = picDisplay.Width / 2,
                 Y = picDisplay.Height / 2,
             };
-
-            rectangle1.OnParticleOverlap += (m) =>
+            Action<Particle> onCollision = (particle) =>
             {
-
+                particle.ColorParticle = Color.Red; 
+                particle.Life = 0; 
             };
-            rectangle2.OnParticleOverlap += (m) =>
+            this.emitter.CreateParticle = () =>  
             {
+                var p = new Particle(emitter.X, emitter.Y, 0)  
+                {
+                    ColorParticle = emitter.ColorFrom
+                };
 
+                p.OnRectangleOverlap = (particle) =>  
+                {
+                    particle.ColorParticle = Color.Red;
+                    particle.Life = 0;
+                };
+
+                return p;  
             };
             rectangles.Add(rectangle1);
             rectangles.Add(rectangle2);
