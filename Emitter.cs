@@ -21,52 +21,46 @@ namespace Частицы
         public int Y; // соответствующая координата Y 
         public int Direction = 0; // вектор направления в градусах куда сыпет эмиттер
         public int Spreading = 360; // разброс частиц относительно Direction
-        public int SpeedMin = 1; // начальная минимальная скорость движения частицы
-        public int SpeedMax = 10; // начальная максимальная скорость движения частицы
-        public int RadiusMin = 10; // минимальный радиус частицы
-        public int RadiusMax = 10; // максимальный радиус частицы
-        public int LifeMin = 20; // минимальное время жизни частицы
-        public int LifeMax = 100; // максимальное время жизни частицы
+        public int Speed = 10; // начальная максимальная скорость движения частицы
+        public int Radius= 10; // максимальный радиус частицы
+        public int Life = 100; // максимальное время жизни частицы
         public int ParticlesPerTick = 1;
 
         public Color ColorFrom = Color.White; // начальный цвет частицы
-        public Color ColorTo = Color.FromArgb(0, Color.Black); // конечный цвет частиц
 
         public virtual Particle CreateParticle()
         {
             var particle = new Particle(X, Y, 0)
             {
-                ColorFrom = this.ColorFrom,
-                ColorTo = this.ColorTo
+                ColorParticle = this.ColorFrom
             };
             return particle;
         }
         public void UpdateState()
-         {
-             int particlesToCreate = ParticlesPerTick;
+        {
+            int particlesToCreate = ParticlesPerTick;
 
-             foreach (var particle in particles.ToList())
-             {
-                 /*foreach (var rect in Rectangles)
-                 {
-                     if (rect.Overlap(particle))
-                     {
-                         particle.Life = 0;
-                         break;
-                     }
-                 }*/
-                 if (particle.Life <= 0)
-                 {
-                     particles.Remove(particle);
-                 }
-                 else
-                 {
-                     particle.X += particle.SpeedX;
-                     particle.Y += particle.SpeedY;
-                     particle.Life -= 1;
-                 }
-             }
-         }
+            foreach (var particle in particles.ToList())
+            {
+                /*foreach (var rect in Rectangles)
+                {
+                    if (rect.Overlap(particle))
+                    {
+                        particle.Life = 0;
+                        break;
+                    }
+                }*/
+                if (particle.Life <= 0)
+                {
+                    particles.Remove(particle);
+                }
+                else
+                {
+                    particle.X += particle.SpeedX;
+                    particle.Y += particle.SpeedY;
+                }
+            }
+        }
 
         public void Render(Graphics g)
         {
@@ -113,7 +107,7 @@ namespace Частицы
         public int ParticlesCount = 500;
         public virtual void ResetParticle(Particle particle)
         {
-            particle.Life = 70;
+            particle.Life = 200;
             particle.X = X;
             particle.Y = Y;
 
@@ -135,29 +129,13 @@ namespace Частицы
             dy += spreadFactor;
 
             // Устанавливаем скорость частицыф
-            var speed = Particle.rand.Next(SpeedMin, SpeedMax);
+            var speed = Speed;
             particle.SpeedX = dx * speed;
             particle.SpeedY = dy * speed;
 
-            particle.Radius = Particle.rand.Next(RadiusMin, RadiusMax);
+            particle.Radius = Radius;
         }
 
 
-    }
-    class TopEmitter : Emitter
-    {
-        public int Width; // длина экрана
-
-        public override void ResetParticle(Particle particle)
-        {
-            base.ResetParticle(particle); // вызываем базовый сброс частицы, там жизнь переопределяется и все такое
-
-            // а теперь тут уже подкручиваем параметры движения
-            particle.X = Particle.rand.Next(Width); // позиция X -- произвольная точка от 0 до Width
-            particle.Y = 0;  // ноль -- это верх экрана 
-
-            particle.SpeedY = 0; // падаем вниз по умолчанию
-            //particle.SpeedX = Particle.rand.Next(-2, 2); // разброс влево и вправа у частиц 
-        }
     }
 }

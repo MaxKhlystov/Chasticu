@@ -18,21 +18,19 @@ namespace Частицы
         Rectangle rectangle1;
         Rectangle rectangle2;
         Emitter emitter;
+        Random rand = new Random();
 
         public Form1()
         {
             InitializeComponent();
             picDisplay.Image = new Bitmap(picDisplay.Width, picDisplay.Height);
-            rectangle1 = new Rectangle(picDisplay.Width / 2, picDisplay.Height / 3, 0);
-            rectangle2 = new Rectangle(picDisplay.Width / 3, picDisplay.Height / 2, 0);
-            this.emitter = new Emitter // создаю эмиттер и привязываю его к полю emitter
+            rectangle1 = new Rectangle(picDisplay.Width/2, picDisplay.Height/4, 0);
+            rectangle2 = new Rectangle(picDisplay.Width/4, picDisplay.Height/2, 0);
+            this.emitter = new Emitter 
             {
                 Direction = 0,
                 Spreading = 10,
-                SpeedMin = 10,
-                SpeedMax = 10,
-                ColorFrom = Color.Gold,
-                ColorTo = Color.FromArgb(0, Color.Red),
+                Speed = 10,
                 ParticlesPerTick = 10,
                 X = picDisplay.Width / 2,
                 Y = picDisplay.Height / 2,
