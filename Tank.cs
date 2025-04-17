@@ -1,47 +1,87 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Частицы
 {
-    class Tank : BaseObject 
+    class Tank : BaseObject
     {
-        public Action<Rectangle> OnRectangleOverlap;
-        public Action<Particle> OnParticleOverlap;
-        public int HP = 100;
-        public Tank(float x, float y, float angle) : base(x, y, angle)
-        {
+        public int HP { get; private set; } = 100;
+        public float Speed { get; set; } = 5f;
+        private readonly Pen outlinePen = new Pen(Color.White, 3);
 
-        }
+        public Tank(float x, float y, float angle) : base(x, y, angle) { }
+
         public override void Render(Graphics g)
         {
-            g.DrawString($"HP: {HP}", new Font("Arial", 10), Brushes.Red, -30, -40);
-            g.DrawRectangle(
-                new Pen(Color.Black, 2),
-                -35, -30, 70, 60
-            );
-            g.FillEllipse(
-                new SolidBrush(Color.DeepSkyBlue),
-                -25, -25, 50, 50
-            );
-            g.DrawEllipse(
-                new Pen(Color.Black, 2),
-                -25, -25, 50, 50
-            );
-            g.DrawLine(
-                new Pen(Color.Black, 3),
-                0, 0, 30, 0
-            );
+            // Сохраняем настройки
+            var state = g.Save();
+
+            // Применяем трансформации
+            g.TranslateTransform(X, Y);
+            g.RotateTransform(Angle);
+
+            // 1. Рисуем корпус (100x60 пикселей)
+            g.FillRectangle(Brushes.DarkGreen, -50, -30, 100, 60);
+            g.DrawRectangle(outlinePen, -50, -30, 100, 60);
+
+            // 2. Рисуем башню (круг диаметром 60 пикселей)
+            g.FillEllipse(Brushes.Green, -30, -30, 60, 60);
+            g.DrawEllipse(outlinePen, -30, -30, 60, 60);
+
+            // 3. Рисуем дуло (50x12 пикселей)
+            g.FillRectangle(Brushes.DarkGreen, 0, -6, 50, 12);
+            g.DrawRectangle(outlinePen, 0, -6, 50, 12);
+
+            // 4. Отображаем HP
+            g.DrawString($"HP: {HP}", new Font("Arial", 16), Brushes.DeepPink, -40, -40);
+
+            // Восстанавливаем настройки
+            g.Restore(state);
         }
+
         public override GraphicsPath GetGraphicsPath()
         {
             var path = new GraphicsPath();
-            path.AddEllipse(-25, -25, 50, 50);
+            path.AddRectangle(new RectangleF(-50, -30, 100, 60)); // Корпус
+            path.AddEllipse(-30, -30, 60, 60); // Башня
             return path;
+        }
+
+        public void TakeDamage(int damage)
+        {
+            HP = Math.Max(0, HP - damage);
+        }
+
+        public void MoveForward()
+        {
+            X += (float)Math.Cos(Angle * Math.PI / 180) * Speed;
+            Y += (float)Math.Sin(Angle * Math.PI / 180) * Speed;
+        }
+
+        public void MoveBackward()
+        {
+            X -= (float)Math.Cos(Angle * Math.PI / 180) * Speed;
+            Y -= (float)Math.Sin(Angle * Math.PI / 180) * Speed;
+        }
+
+        public void RotateLeft()
+        {
+            Angle -= 3f;
+        }
+
+        public void RotateRight()
+        {
+            Angle += 3f;
+        }
+        public PointF GetGunPosition()
+        {
+            // Длина дула + небольшой отступ (50 + 10)
+            float distance = 60;
+            float gunX = X + (float)Math.Cos(Angle * Math.PI / 180) * distance;
+            float gunY = Y + (float)Math.Sin(Angle * Math.PI / 180) * distance;
+
+            return new PointF(gunX, gunY);
         }
     }
 }

@@ -17,15 +17,19 @@ namespace Частицы
         List<Emitter> emitters = new List<Emitter>();
         Rectangle rectangle1;
         Rectangle rectangle2;
+        Rectangle rectangle3;
         Emitter emitter;
+        private Tank playerTank;
+        private bool wPressed, sPressed, aPressed, dPressed;
         Random rand = new Random();
 
         public Form1()
         {
             InitializeComponent();
             picDisplay.Image = new Bitmap(picDisplay.Width, picDisplay.Height);
-            rectangle1 = new Rectangle(picDisplay.Width/2, picDisplay.Height/4, 0);
-            rectangle2 = new Rectangle(picDisplay.Width/4, picDisplay.Height/2, 0);
+            rectangle1 = new Rectangle(picDisplay.Width/1.5f, picDisplay.Height/1.2f, 0);
+            rectangle2 = new Rectangle(picDisplay.Width/1.5f, picDisplay.Height/3, 0);
+            rectangle3 = new Rectangle(picDisplay.Width / 4, picDisplay.Height / 2, 0);
             this.emitter = new Emitter 
             {
                 Direction = 0,
@@ -40,25 +44,62 @@ namespace Частицы
                 particle.ColorParticle = Color.Red; 
                 particle.Life = 0; 
             };
-            this.emitter.CreateParticle = () =>  
+            this.emitter.CreateParticle = () =>
             {
-                var p = new Particle(emitter.X, emitter.Y, 0)  
+                var gunPos = playerTank.GetGunPosition();
+                var p = new Particle(gunPos.X, gunPos.Y, playerTank.Angle) // Передаем угол танка
                 {
-                    ColorParticle = emitter.ColorFrom
+                    ColorParticle = Color.Orange // Оранжевые частицы для эффекта выстрела
                 };
 
-                p.OnRectangleOverlap = (particle) =>  
+                // Направление частицы совпадает с направлением танка
+                float speed = 15f; // Скорость вылета
+                p.SpeedX = (float)Math.Cos(playerTank.Angle * Math.PI / 180) * speed;
+                p.SpeedY = (float)Math.Sin(playerTank.Angle * Math.PI / 180) * speed;
+
+                p.OnRectangleOverlap = (particle) =>
                 {
                     particle.ColorParticle = Color.Red;
                     particle.Life = 0;
                 };
-
-                return p;  
+                return p;
             };
+            playerTank = new Tank(picDisplay.Width / 2, picDisplay.Height / 2, 0)
+            {
+                Speed = 3f
+            };
+            this.KeyDown += Form1_KeyDown;
+            this.KeyUp += Form1_KeyUp;
+
             rectangles.Add(rectangle1);
             rectangles.Add(rectangle2);
+            rectangles.Add(rectangle3);
             emitter.Rectangles.AddRange(rectangles);
             emitters.Add(this.emitter);
+        }
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.W: wPressed = true; break;
+                case Keys.S: sPressed = true; break;
+                case Keys.A: aPressed = true; break;
+                case Keys.D: dPressed = true; break;
+                case Keys.Space: // Выстрел по пробелу
+                    emitter.EmitParticles(3); // Выпускаем 3 частицы за раз
+                    break;
+            }
+        }
+
+        private void Form1_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.W: wPressed = false; break;
+                case Keys.S: sPressed = false; break;
+                case Keys.A: aPressed = false; break;
+                case Keys.D: dPressed = false; break;
+            }
         }
 
         private void picDisplay_Click(object sender, EventArgs e)
@@ -68,16 +109,43 @@ namespace Частицы
 
         private void timer1_Tick(object sender, EventArgs e)
         {
+            // Управление танком
+            if (wPressed) playerTank.MoveForward();
+            if (sPressed) playerTank.MoveBackward();
+            if (aPressed) playerTank.RotateLeft();
+            if (dPressed) playerTank.RotateRight();
+
+            // Обновление частиц
             emitter.UpdateState();
+
+            // Проверка столкновений танка с частицами
+            foreach (var particle in emitter.particles.ToList())
+            {
+                if (playerTank.Overlaps(particle, null))
+                {
+                    playerTank.TakeDamage(10);
+                    particle.Life = 0;
+                }
+            }
+
+            // Отрисовка
             using (var g = Graphics.FromImage(picDisplay.Image))
             {
                 g.Clear(Color.Black);
+
+                // Отрисовка прямоугольников
                 foreach (var rect in rectangles)
                 {
                     rect.Render(g);
                 }
+
+                // Отрисовка частиц
                 emitter.Render(g);
+
+                // Отрисовка танка
+                playerTank.Render(g);
             }
+
             picDisplay.Invalidate();
         }
 

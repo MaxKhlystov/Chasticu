@@ -13,6 +13,7 @@ namespace Частицы
         public List<IImpactPoint> impactPoints = new List<IImpactPoint>();
         public List<Particle> particles = new List<Particle>();
         public List<Rectangle> Rectangles = new List<Rectangle>();
+        public Func<Particle> CreateParticle;
         public int MousePositionX;
         public int MousePositionY;
         public float TargetX; // X-координата цели (курсора)
@@ -22,47 +23,47 @@ namespace Частицы
         public int Direction = 0; // вектор направления в градусах куда сыпет эмиттер
         public int Spreading = 360; // разброс частиц относительно Direction
         public int Speed = 10; // начальная максимальная скорость движения частицы
-        public int Radius= 10; // максимальный радиус частицы
+        public int Radius = 10; // максимальный радиус частицы
         public int Life = 100; // максимальное время жизни частицы
         public int ParticlesPerTick = 1;
 
         public Color ColorFrom = Color.White; // начальный цвет частицы
 
-        public virtual Particle CreateParticle()
+        /*public virtual Particle CreateParticle()
         {
             var particle = new Particle(X, Y, 0)
             {
                 ColorParticle = this.ColorFrom
             };
             return particle;
-        }
+        }*/
         public void UpdateState()
         {
-            int particlesToCreate = ParticlesPerTick;
-
-            foreach (var particle in particles.ToList())
+            using (var g = Graphics.FromImage(new Bitmap(1, 1))) // Создаем временный Graphics
             {
-                if (particle.Life <= 0)
+                foreach (var particle in particles.ToList())
                 {
-                    particles.Remove(particle);
-                }
-                else
-                {
-                    particle.X += particle.SpeedX;
-                    particle.Y += particle.SpeedY;
-
-                    foreach (var rect in Rectangles)
+                    if (particle.Life <= 0)
                     {
-                        if (particle.Overlaps(rect, null)) // null, т.к. Graphics не нужен для Region.IsEmpty
+                        particles.Remove(particle);
+                    }
+                    else
+                    {
+                        particle.X += particle.SpeedX;
+                        particle.Y += particle.SpeedY;
+
+                        foreach (var rect in Rectangles)
                         {
-                            particle.OnRectangleOverlap?.Invoke(particle);
-                            break; // Прерываем, если столкнулись хотя бы с одним прямоугольником
+                            if (particle.Overlaps(rect, g)) // Используем Overlaps с Graphics
+                            {
+                                particle.OnRectangleOverlap?.Invoke(particle);
+                                break;
+                            }
                         }
                     }
                 }
             }
         }
-
         public void Render(Graphics g)
         {
             foreach (var rect in Rectangles)

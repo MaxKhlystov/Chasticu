@@ -20,8 +20,8 @@ namespace Частицы
 
         public Rectangle(float x, float y, float angle) : base(x, y, angle)
         {
-            Width = rand.Next(50, 101);
-            Height = rand.Next(30, 101);
+            Width = rand.Next(100, 201);
+            Height = rand.Next(100, 201);
             Color = Color.Red;
         }
 

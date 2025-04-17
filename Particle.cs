@@ -36,12 +36,18 @@ namespace Частицы
                 g.FillEllipse(b, X - Radius, Y - Radius, Radius * 2, Radius * 2);
             }
         }
-        public override void Overlap(BaseObject obj)
+        public override bool Overlaps(BaseObject obj, Graphics g)
         {
-            base.Overlap(obj);
-            if (obj is Rectangle)
+            var path1 = this.GetGraphicsPath();
+            path1.Transform(this.GetTransform());
+
+            var path2 = obj.GetGraphicsPath();
+            path2.Transform(obj.GetTransform());
+
+            using (var region = new Region(path1))
             {
-                OnRectangleOverlap?.Invoke(this);
+                region.Intersect(path2);
+                return !region.IsEmpty(g);
             }
         }
         public override GraphicsPath GetGraphicsPath()

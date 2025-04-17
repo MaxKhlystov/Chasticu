@@ -40,15 +40,18 @@ namespace Частицы
 
         public virtual bool Overlaps(BaseObject obj, Graphics g)
         {
-            var path1 = this.GetGraphicsPath();
-            var path2 = obj.GetGraphicsPath();
+            // Получаем границы частицы
+            var particleBounds = this.GetGraphicsPath().GetBounds();
+            particleBounds.X += this.X - particleBounds.Width / 2;
+            particleBounds.Y += this.Y - particleBounds.Height / 2;
 
-            path1.Transform(this.GetTransform());
-            path2.Transform(obj.GetTransform());
+            // Получаем границы прямоугольника
+            var rectBounds = obj.GetGraphicsPath().GetBounds();
+            rectBounds.X += obj.X - rectBounds.Width / 2;
+            rectBounds.Y += obj.Y - rectBounds.Height / 2;
 
-            var region = new Region(path1);
-            region.Intersect(path2);
-            return !region.IsEmpty(g);
+            // Проверяем пересечение прямоугольников
+            return particleBounds.IntersectsWith(rectBounds);
         }
 
         public virtual void Overlap(BaseObject obj)
