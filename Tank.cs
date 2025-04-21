@@ -74,6 +74,12 @@ namespace Частицы
         {
             Angle += 3f;
         }
+        public void AimAt(float targetX, float targetY)
+        {
+            float dx = targetX - X;
+            float dy = targetY - Y;
+            Angle = (float)(Math.Atan2(dy, dx) * 180 / Math.PI);
+        }
         public PointF GetGunPosition()
         {
             // Длина дула + небольшой отступ (50 + 10)

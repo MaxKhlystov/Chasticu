@@ -13,7 +13,7 @@ namespace Частицы
         public float SpeedX;
         public float SpeedY;
         public Color ColorParticle = Color.White;
-        public Action<Particle> OnRectangleOverlap;
+        public Action <Particle> OnRectangleOverlap;
 
         public static Random rand = new Random();
         

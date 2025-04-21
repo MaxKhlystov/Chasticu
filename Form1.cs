@@ -47,20 +47,19 @@ namespace Частицы
             this.emitter.CreateParticle = () =>
             {
                 var gunPos = playerTank.GetGunPosition();
-                var p = new Particle(gunPos.X, gunPos.Y, playerTank.Angle) // Передаем угол танка
+                var p = new Particle(gunPos.X, gunPos.Y, playerTank.Angle)
                 {
-                    ColorParticle = Color.Orange // Оранжевые частицы для эффекта выстрела
+                    ColorParticle = Color.Orange
                 };
 
-                // Направление частицы совпадает с направлением танка
-                float speed = 15f; // Скорость вылета
+                // Направление частицы совпадает с направлением дула
+                float speed = 15f;
                 p.SpeedX = (float)Math.Cos(playerTank.Angle * Math.PI / 180) * speed;
                 p.SpeedY = (float)Math.Sin(playerTank.Angle * Math.PI / 180) * speed;
 
                 p.OnRectangleOverlap = (particle) =>
                 {
-                    particle.ColorParticle = Color.Red;
-                    particle.Life = 0;
+                    p.Life = 0;
                 };
                 return p;
             };
@@ -151,6 +150,8 @@ namespace Частицы
 
         private void picDisplay_MouseMove(object sender, MouseEventArgs e)
         {
+            playerTank.AimAt(e.X, e.Y);
+
             emitter.TargetX = e.X;
             emitter.TargetY = e.Y;
         }

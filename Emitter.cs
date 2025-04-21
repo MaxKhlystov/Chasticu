@@ -27,16 +27,7 @@ namespace Частицы
         public int Life = 100; // максимальное время жизни частицы
         public int ParticlesPerTick = 1;
 
-        public Color ColorFrom = Color.White; // начальный цвет частицы
-
-        /*public virtual Particle CreateParticle()
-        {
-            var particle = new Particle(X, Y, 0)
-            {
-                ColorParticle = this.ColorFrom
-            };
-            return particle;
-        }*/
+        public Color ColorFrom = Color.White; // начальный цвет частицы 
         public void UpdateState()
         {
             using (var g = Graphics.FromImage(new Bitmap(1, 1))) // Создаем временный Graphics
@@ -56,8 +47,12 @@ namespace Частицы
                         {
                             if (particle.Overlaps(rect, g)) // Используем Overlaps с Graphics
                             {
-                                particle.OnRectangleOverlap?.Invoke(particle);
+                                particle.Life=0;
                                 break;
+                            }
+                            if (particle.OnRectangleOverlap != null)
+                            {
+                                particle.OnRectangleOverlap(particle);
                             }
                         }
                     }
