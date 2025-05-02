@@ -10,21 +10,12 @@ namespace Частицы
         public int Radius;
         public float X;
         public float Y;
-        public float SpeedX;
-        public float SpeedY;
         public Color ColorParticle = Color.White;
         public Action <Particle> OnRectangleOverlap;
 
-        public static Random rand = new Random();
-        
-        public Particle(float x, float y, float angle) : base(x, y, angle)
+        public Particle(float x, float y) : base(x, y, 0)
         {
-            var direction = rand.Next(360); 
-            var speed = 10; 
-            SpeedX = (float)(Math.Cos(direction / 180 * Math.PI) * speed); 
-            SpeedY = -(float)(Math.Sin(direction / 180 * Math.PI) * speed); 
-            Radius = 2 + rand.Next(10); 
-            Life = 200;
+            Radius = 10; 
         }
 
         public virtual void Draw(Graphics g)
