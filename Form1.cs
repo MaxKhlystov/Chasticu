@@ -13,14 +13,12 @@ namespace Частицы
 {
     public partial class Form1 : Form
     {
-        List<Rectangle> rectangles = new List<Rectangle>();
-        List<Emitter> emitters = new List<Emitter>();
-        Rectangle rectangle1, rectangle2, rectangle3;
         Emitter emitter = new Emitter();
-        private Human player;
+        private Snake snake;
         private DateTime lastParticleTime;
-        private bool wPressed, sPressed, aPressed, dPressed;
         Random rand = new Random();
+        private bool isGameOver = false;
+
 
         public Form1()
         {
@@ -28,52 +26,50 @@ namespace Частицы
             picDisplay.Image = new Bitmap(picDisplay.Width, picDisplay.Height);
             emitter.CanvasWidth = picDisplay.Width;
             emitter.CanvasHeight = picDisplay.Height;
-            rectangle1 = new Rectangle(picDisplay.Width/1.5f, picDisplay.Height/1.2f, 0);
-            rectangle2 = new Rectangle(picDisplay.Width/1.5f, picDisplay.Height/3, 0);
-            rectangle3 = new Rectangle(picDisplay.Width / 4, picDisplay.Height / 2, 0);
+
             emitter.CreateParticle = () =>
             {
-                return new Particle(
-                    rand.Next(picDisplay.Width),
-                    rand.Next(picDisplay.Height))
+                var particle = new Particle(
+                    rand.Next(20, picDisplay.Width - 20),
+                    rand.Next(20, picDisplay.Height - 20))
                 {
-                    ColorParticle = rand.Next(2) == 0 ? Color.Yellow : Color.Red
+                    Radius = 10,
+                    Life = 200
                 };
-            };
-            player = new Human(picDisplay.Width / 2, picDisplay.Height / 2);
-            this.KeyDown += Form1_KeyDown;
-            this.KeyUp += Form1_KeyUp;
 
-            rectangles.Add(rectangle1);
-            rectangles.Add(rectangle2);
-            rectangles.Add(rectangle3);
-            emitter.Rectangles.AddRange(rectangles);
-            emitters.Add(this.emitter);
+                int type = rand.Next(10);
+                if (type < 5) // 50% - желтые
+                {
+                    particle.ColorParticle = Color.Yellow;
+                }
+                else if (type < 9) // 40% - красные
+                {
+                    particle.ColorParticle = Color.Red;
+                }
+                else // 10% - зеленые (живут меньше)
+                {
+                    particle.ColorParticle = Color.LimeGreen;
+                    particle.Life = 1000;
+                }
+
+                return particle;
+            };
+
+            snake = new Snake(picDisplay.Width / 2, picDisplay.Height / 2);
+
             Timer timer = new Timer();
-            timer.Interval = 20; // интервал в миллисекундах, например, 20мс -> 50 кадров в секунду
-            timer.Tick += timer1_Tick; // связываем с обработчиком события
+            timer.Interval = 20;
+            timer.Tick += timer1_Tick;
             timer.Start();
         }
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            switch (e.KeyCode)
-            {
-                case Keys.W: wPressed = true; break;
-                case Keys.S: sPressed = true; break;
-                case Keys.A: aPressed = true; break;
-                case Keys.D: dPressed = true; break;
-            }
+          
         }
 
         private void Form1_KeyUp(object sender, KeyEventArgs e)
         {
-            switch (e.KeyCode)
-            {
-                case Keys.W: wPressed = false; break;
-                case Keys.S: sPressed = false; break;
-                case Keys.A: aPressed = false; break;
-                case Keys.D: dPressed = false; break;
-            }
+            
         }
 
         private void picDisplay_Click(object sender, EventArgs e)
@@ -83,20 +79,19 @@ namespace Частицы
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            float dx = 0;
-            float dy = 0;
+            if (isGameOver) return;
+            
+            if (snake.CheckBorderCollision(picDisplay.Width, picDisplay.Height) && isGameOver == false)
+            {
+                GameOver();
+                return;
+            }
 
-            if (wPressed) dy -= 1; // Вверх
-            if (sPressed) dy += 1; // Вниз
-            if (aPressed) dx -= 1; // Влево
-            if (dPressed) dx += 1; // Вправо
-            player.Move(dx, dy);
+            snake.SetTarget(picDisplay.PointToClient(Cursor.Position));
+            snake.Move();
 
-            emitter.X = (int)player.X; // Координата X эмиттера - центр игрока
-            emitter.Y = (int)player.Y;
-
-            // Генерация частиц раз в 5 секунд
-            if ((DateTime.Now - lastParticleTime).TotalSeconds >= 5)
+            // Генерация частиц раз в секунду
+            if ((DateTime.Now - lastParticleTime).TotalSeconds >= 1)
             {
                 emitter.EmitParticles(1);
                 lastParticleTime = DateTime.Now;
@@ -107,13 +102,11 @@ namespace Частицы
             // Проверка столкновений
             foreach (var p in emitter.particles.ToList())
             {
-                if (p.ColorParticle == Color.Red &&
-                    !player.IsInProtectionZone(p.X, p.Y) &&
-                    Math.Abs(p.X - player.X) < 30 &&
-                    Math.Abs(p.Y - player.Y) < 70)
+                if (snake.CheckCollision(p))
                 {
-                    player.TakeDamage(10);
                     emitter.particles.Remove(p);
+                    snake.ProcessParticleCollision(p, emitter);
+                    richTextBox1.Text = snake.Score.ToString();
                 }
             }
 
@@ -122,14 +115,33 @@ namespace Частицы
             {
                 g.Clear(Color.Black);
                 emitter.Render(g);
-                player.Render(g);
+                snake.Render(g);
             }
             picDisplay.Invalidate();
+        }
+        private void GameOver()
+        {
+            isGameOver = true;
+            timer1.Stop();
+            MessageBox.Show("Игра окончена! Вы врезались в стену.\nВаш счет: " + snake.Score,
+                           "Game Over",
+                           MessageBoxButtons.OK,
+                           MessageBoxIcon.Exclamation);
         }
 
         private void picDisplay_MouseMove(object sender, MouseEventArgs e)
         {
             
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+
         }
 
         private void picDisplay_MouseClick(object sender, MouseEventArgs e)
@@ -155,6 +167,15 @@ namespace Частицы
         private void label4_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void butRestart_Click(object sender, EventArgs e)
+        {
+            isGameOver = false;
+            snake = new Snake(picDisplay.Width / 2, picDisplay.Height / 2);
+            emitter.particles.Clear();
+            richTextBox1.Text = "0";
+            timer1.Start();
         }
     }
 }
