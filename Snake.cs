@@ -1,19 +1,29 @@
-﻿// Snake.cs
+﻿// Snake.cs (Изменения для уровней сложности)
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 
 namespace Частицы
 {
     class Snake : BaseObject
     {
         public List<Particle> Body { get; private set; } = new List<Particle>();
-        public int Score { get; private set; } = 0;
+        public int Score { get; set; } = 0;
         private PointF targetPosition;
-        private float speed = 3f;
+        private float baseSpeed = 3f;
+        public bool IsBoosted { get; set; } = false; // Добавлено свойство для проверки ускорения
         private int followDistance = 15;
-
+        private Direction currentDirection = Direction.None; // Добавлено
+        public enum Direction
+        {
+            None,
+            Up,
+            Down,
+            Left,
+            Right
+        }
         public Snake(float x, float y) : base(x, y, 0)
         {
             Body.Add(new Particle(x, y)
@@ -32,6 +42,8 @@ namespace Частицы
             }
         }
 
+        public float Speed { get; set; }
+
         public void SetTarget(PointF target) => targetPosition = target;
 
         public void Move()
@@ -46,8 +58,8 @@ namespace Частицы
 
             if (distance > 0)
             {
-                head.X += dx / distance * speed;
-                head.Y += dy / distance * speed;
+                head.X += dx / distance * Speed; // Используем Speed
+                head.Y += dy / distance * Speed;
             }
 
             // Движение тела
@@ -62,18 +74,35 @@ namespace Частицы
 
                 if (distance > followDistance)
                 {
-                    current.X += dx / distance * speed;
-                    current.Y += dy / distance * speed;
+                    current.X += dx / distance * Speed; // Используем Speed
+                    current.Y += dy / distance * Speed;
                 }
             }
-
-            // Проверка самопересечения
             CheckSelfCollision();
         }
 
-        private void CheckSelfCollision()
+        public bool CheckSelfCollision()
         {
-            if (Body.Count < 5) return; // Не проверяем для очень коротких змеек
+            if (Body.Count < 5) return false;
+
+            var head = Body[0];
+            for (int i = 4; i < Body.Count; i++)
+            {
+                var segment = Body[i];
+                float dx = head.X - segment.X;
+                float dy = head.Y - segment.Y;
+                float distance = (float)Math.Sqrt(dx * dx + dy * dy);
+
+                if (distance < head.Radius + segment.Radius)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public bool CheckSelfCollisionHard() // Метод для проверки столкновений на сложном уровне
+        {
+            if (Body.Count < 5) return false; // Не проверяем для очень коротких змеек
 
             var head = Body[0];
             for (int i = 4; i < Body.Count; i++) // Начинаем проверку с 4-го сегмента
@@ -85,15 +114,15 @@ namespace Частицы
 
                 if (distance < head.Radius + segment.Radius)
                 {
-                    RemoveTailSegment();
-                    break;
+                    return true;
                 }
             }
+            return false;
         }
 
-        private void RemoveTailSegment()
+        public void RemoveTailSegment()
         {
-            if (Body.Count > 1)
+            if (Body.Count > 1) // Всегда оставляем хотя бы голову
             {
                 Body.RemoveAt(Body.Count - 1);
             }
@@ -113,36 +142,55 @@ namespace Частицы
 
         public void ProcessParticleCollision(Particle particle, Emitter emitter)
         {
+            int kol = 1;
             if (particle.ColorParticle == Color.Yellow)
             {
+                kol = 1;
                 Score++;
-                Grow();
+                Grow(kol);
             }
             else if (particle.ColorParticle == Color.Red)
+            {
+
+            }
+            else if (particle.ColorParticle == Color.LimeGreen)
+            {
+                kol = 2;
+                Score += 2;
+                Grow(kol);
+            }
+            else if (particle.ColorParticle == Color.Coral)
+            {
+                Score += 50;
+                kol = 50;
+                Grow(kol);
+            }
+            else if (particle.ColorParticle == Color.Cyan)
             {
                 Score = Math.Max(0, Score - 1);
                 if (Body.Count > 1) RemoveTailSegment();
             }
-            else if (particle.ColorParticle == Color.LimeGreen)
+            else if (particle.ColorParticle == Color.FromArgb(255, 144, 238, 144))
             {
-                Score += 2;
-                Grow();
-                Grow();
-             
-                emitter.CreateExplosion(particle.X, particle.Y);
+                Score = Math.Max(0, Score - 1);
+                if (Body.Count > 1) RemoveTailSegment();
             }
         }
 
-        public void Grow()
+
+        public void Grow(int kol)
         {
             if (Body.Count == 0) return;
 
             var last = Body[Body.Count - 1];
-            Body.Add(new Particle(last.X, last.Y)
+            for (int i = 0; i < kol; i++)
             {
-                ColorParticle = Color.LimeGreen,
-                Radius = 10
-            });
+                Body.Add(new Particle(last.X, last.Y)
+                {
+                    ColorParticle = Color.LimeGreen,
+                    Radius = 10
+                });
+            }
         }
 
         public override void Render(Graphics g)
@@ -151,7 +199,6 @@ namespace Частицы
             {
                 var segment = Body[i];
 
-                // Для головы используем более темный зеленый
                 Color color = (i == 0) ? Color.Green : Color.LimeGreen;
 
                 using (var brush = new SolidBrush(color))
@@ -164,7 +211,6 @@ namespace Частицы
                 }
             }
 
-            // Рисуем счет над головой
             if (Body.Count > 0)
             {
                 var head = Body[0];

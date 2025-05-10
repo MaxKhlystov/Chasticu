@@ -16,7 +16,14 @@ namespace Частицы
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            using (var formDifficulty = new FormDifficulty())
+            {
+                if (formDifficulty.ShowDialog() == DialogResult.OK)
+                {
+                    // Запускаем Form1 с выбранной сложностью
+                    Application.Run(new Form1(formDifficulty.SelectedDifficulty));
+                }
+            }
         }
     }
 }

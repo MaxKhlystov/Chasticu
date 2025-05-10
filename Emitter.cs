@@ -20,18 +20,23 @@ namespace Частицы
         public int Life = 200; // максимальное время жизни частицы
         public int ParticlesPerTick = 1;
         public Random rand = new Random();
-        public void UpdateState()
+        public void UpdateState(Snake snake = null)
         {
             foreach (var particle in particles.ToList())
             {
                 particle.Life--;
-                particle.Opacity = Math.Max(0f, particle.Life / 60.0f); // Гарантируем неотрицательное значение
+                particle.Opacity = Math.Max(0f, particle.Life / 60.0f);
 
                 particle.X += particle.DX;
                 particle.Y += particle.DY;
 
                 if (particle.Life <= 0)
                 {
+                    // Взрыв Coral частицы при исчезновении
+                    if (particle.ColorParticle == Color.Coral)
+                    {
+                        CreateExplosion(particle.X, particle.Y, Color.Red); // Взрыв с красными частицами
+                    }
                     particles.Remove(particle);
                 }
             }
@@ -61,25 +66,25 @@ namespace Частицы
             particle.Y = rand.Next(0, CanvasHeight);
             particle.ColorParticle = rand.Next(2) == 0 ? Color.Yellow : Color.Red;
         }
-        public void CreateExplosion(float x, float y)
+        public void CreateExplosion(float x, float y, Color? color = null)
         {
+            var explosionColor = color ?? Color.FromArgb(255, 144, 238, 144);
+
             for (int i = 0; i < 20; i++)
             {
                 var particle = new Particle(x, y)
                 {
                     Radius = 5,
                     Life = 60,
-                    ColorParticle = Color.FromArgb(255, 144, 238, 144),
-                    Opacity = 1.0f // Гарантированно в пределах 0.0-1.0
+                    ColorParticle = explosionColor,
+                    Opacity = 1.0f
                 };
 
-                // Разлетаем частицы по окружности
                 float angle = (float)(i * (2 * Math.PI / 20));
                 float speed = 2f;
                 particle.X += (float)(Math.Cos(angle) * 10);
                 particle.Y += (float)(Math.Sin(angle) * 10);
 
-                // Добавляем скорость для разлета
                 particle.DX = (float)(Math.Cos(angle) * speed);
                 particle.DY = (float)(Math.Sin(angle) * speed);
 
