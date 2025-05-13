@@ -361,5 +361,47 @@ namespace Частицы
             snake.Speed = baseSpeed;
             timer1.Start();
         }
+        private void butDif_Click(object sender, EventArgs e)
+        {
+            // Приостанавливаем игру на время выбора сложности
+            timer1.Stop();
+
+            // Открываем форму выбора сложности
+            using (var formDifficulty = new FormDifficulty())
+            {
+                if (formDifficulty.ShowDialog() == DialogResult.OK)
+                {
+                    // Перезапускаем игру с новой сложностью
+                    ResetGame(formDifficulty.SelectedDifficulty);
+                }
+                else
+                {
+                    // Если пользователь закрыл форму без выбора, продолжаем игру
+                    if (!isGameOver) timer1.Start();
+                }
+            }
+        }
+        private void ResetGame(string difficulty)
+        {
+            // Обновляем сложность
+            Difficulty = difficulty;
+
+            // Сбрасываем состояние игры
+            isGameOver = false;
+            snake = new Snake(picDisplay.Width / 2, picDisplay.Height / 2);
+            emitter.particles.Clear();
+            richTextBox1.Text = "0";
+
+            // Устанавливаем скорость в зависимости от сложности
+            baseSpeed = difficulty == "Medium" ? 4.5f : 3f;
+            snake.Speed = baseSpeed;
+
+            // Обновляем текущую сложность для проверок в игре
+            currentDifficulty = difficulty == "Medium" ? GameDifficulty.Medium :
+                               difficulty == "Hard" ? GameDifficulty.Hard : GameDifficulty.Easy;
+
+            // Запускаем игру
+            timer1.Start();
+        }
     }
 }
